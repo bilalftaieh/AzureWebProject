@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Analyzer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Image Analyzer</h1>
+  <p>Analyze images using Microsoft Azure Cognitive Service Computer Vision</p>
+  <form id="uploadForm">
+    <input type="text" id="imageInput" name="imageURL" placeholder="Enter image URL">
+    <button type="submit">Analyze Image</button>
+  </form>
+  <div id="tags"></div>
+  <div id="developers">
+    Developed by <span>Belal Alfutayh (1905161)</span>, <span>Abdullah Moubid (1901391)</span>, and <span>Abdulrahman Hamzeh(1721543)</span>
+  </div>
+
+  <script>
+  document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const imageURL = document.getElementById('imageInput').value;
+    if (imageURL) {
+      const response = await fetch('/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ imageURL })
+      });
+      const data = await response.json();
+      console.log(data); // Check the structure of the response object
+      const tagsDiv = document.getElementById('tags');
+      if (data.tags && data.tags.length > 0) {
+        const table = document.createElement('table');
+        const tableHeader = document.createElement('tr');
+        const headerName = document.createElement('th');
+        headerName.textContent = 'Tag Name';
+        const headerConfidence = document.createElement('th');
+        headerConfidence.textContent = 'Confidence';
+        tableHeader.appendChild(headerName);
+        tableHeader.appendChild(headerConfidence);
+        table.appendChild(tableHeader);
+
+        data.tags.forEach(tag => {
+          const row = document.createElement('tr');
+          const nameCell = document.createElement('td');
+          nameCell.textContent = tag.name;
+          const confidenceCell = document.createElement('td');
+          confidenceCell.textContent = tag.confidence;
+          row.appendChild(nameCell);
+          row.appendChild(confidenceCell);
+          table.appendChild(row);
+        });
+
+        tagsDiv.innerHTML = '';
+        tagsDiv.appendChild(table);
+      } else {
+        tagsDiv.innerHTML = 'No tags found.';
+      }
+    }
+  });
+  </script>
+</body>
+</html>
